@@ -676,12 +676,12 @@ class OmaApp:
         # Create single set_up
         ss = self.create_single_setup(p['start_time'], p['data_files'], p['data_folder'], p['usecols'], p['fs'])
 
-        # Detrend, freq_ilter or decimate
+        # Detrend, filter or decimate
         ss.detrend_data()
         if p['q']:
             ss.decimate_data(q=p['q'])
         if p['order']:
-            ss.freq_filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
+            ss.filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
 
         # Initialise the algorithms
         fdd = FDD(name="FDD", nxseg=p['nxseg'], method_SD=p['method_SD'], pov=p['pov'])
@@ -835,7 +835,7 @@ class OmaApp:
             if Fn_std is not None:
                 xerr = abs(Fn_std).flatten(order="f")
             else:
-                xerr = []
+                xerr = None
 
             for i, (xi, yi) in enumerate(zip(x, y)):
                 if not np.isnan(xi):
@@ -1463,12 +1463,12 @@ class OmaApp:
         # Create single set_up
         ss = self.create_single_setup(p['start_time'], p['data_files'], p['data_folder'], p['usecols'], p['fs'])
 
-        # Detrend, freq_ilter or decimate
+        # Detrend, filter or decimate
         ss.detrend_data()
         if p['q']:
             ss.decimate_data(q=p['q'])
         if p['order']:
-            ss.freq_filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
+            ss.filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
 
         #====================================================================================================================
         # find optimal i

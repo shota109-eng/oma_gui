@@ -1014,19 +1014,27 @@ class OmaApp:
 
             for index in arr_pole_index:
                 pole = df_poles.query('col == @order & row == @index')
-                freq_i = pole['Fn' ].iloc[0]
-                phi_i  = pole['Phi'].iloc[0]
+                fn_i  = pole['Fn' ].iloc[0]
+                xi_i  = pole['Xi' ].iloc[0]
+                phi_i = pole['Phi'].iloc[0]
+
+                # lam = {-2πfξ + 2iπf*sqrt(1-ξ**2)} / 2π
+                lam_i = -1 * fn_i * xi_i + 1j * fn_i * np.sqrt(1 - xi_i ** 2)
 
                 other_poles = df_poles.query('col < @order')
 
                 dist_i = np.array([])
                 for j in range(len(other_poles)):
                     s = other_poles.iloc[j, :]
-                    freq_j = s['Fn' ]
-                    phi_j  = s['Phi']
+                    fn_j  = s['Fn' ]
+                    xi_j  = s['Xi' ]
+                    phi_j = s['Phi']
+
+                    # lam = {-2πfξ + 2iπf*sqrt(1-ξ**2)} / 2π
+                    lam_j = -1 * fn_j * xi_j + 1j * fn_j * np.sqrt(1 - xi_j ** 2)
 
                     mac = gen.MAC(phi_i, phi_j)
-                    dist_ij = abs(freq_i - freq_j) / max([freq_i, freq_j]) + (1 - mac)
+                    dist_ij = abs(lam_i - lam_j) / max([fn_i, fn_j]) + (1 - mac) # abs(lam_i) = fn_i
 
                     dist_i = np.hstack([dist_i, dist_ij])
 

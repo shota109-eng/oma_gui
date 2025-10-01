@@ -711,12 +711,17 @@ class OmaApp:
             ssidat (pyoma2 SSIdat class): _description_
         """
         # make directory to save the results
+        efdd_save_folder = params['save_dir'] + '/EFDD'
         ssi_save_folder  = params['save_dir'] + '/SSI (auto)'
+        os.makedirs(efdd_save_folder, exist_ok=True)
         os.makedirs(ssi_save_folder , exist_ok=True)
 
         # post-process
         # save stabilization and damping diagram
         self.save_stab_and_damp_diagram(params, ssidat, ssi_save_folder)
+
+        # save the efdd result
+        self.save_efdd_result(params, efdd, efdd_save_folder)
 
         # clustering
         clusters, min_distances, hclus_threshold, Z = self.hierarchical_clustering(params, ssidat)
@@ -1437,6 +1442,28 @@ class OmaApp:
 
         return FR
 
+    def save_efdd_result(self, params, efdd, efdd_save_folder):
+        p = params
+
+        # figure
+        fig, ax = efdd.plot_CMIF(freqlim=p['freqlim'])
+        output_fig = efdd_save_folder + "/" + "EFDD_SVD_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".png"
+        fig.savefig(output_fig, dpi=300, bbox_inches='tight')
+
+        # CSV
+        freq = efdd.result.freq
+        S_val = efdd.result.S_val
+
+        ref_max_index = np.argmax(S_val[0, 0, :])
+        ref_max_val = S_val[0, 0, ref_max_index]
+
+        df_spectrum = pd.DataFrame({"Frequency (Hz)": freq})
+        for k in range(S_val.shape[0]):
+            s_db = 10 * np.log10(S_val[k, k, :] / ref_max_val)
+            df_spectrum[f"SVD line {k+1} (dB)"] = s_db
+
+        output_csv = efdd_save_folder + "/" + "EFDD_SVD_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".csv"
+        df_spectrum.to_csv(output_csv, index=False)
 
     # ==========================================================================
     # functions to find optimal numbers of block rows

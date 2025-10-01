@@ -1276,7 +1276,7 @@ class OmaApp:
         for n in df_center['ClusterNo.']:
             df_cluster = large_clusters[
                 large_clusters['cluster_id'] == n
-            ].sort_values().reset_index(drop=True)
+            ].sort_values('Fn').reset_index(drop=True)
 
             df_freqs_in_large_clusters = pd.concat([df_freqs_in_large_clusters, df_cluster['Fn']], axis=1)
 

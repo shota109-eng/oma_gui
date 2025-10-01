@@ -840,7 +840,7 @@ class OmaApp:
             if Fn_std is not None:
                 xerr = abs(Fn_std).flatten(order="f")
             else:
-                xerr = None
+                xerr = []
 
             for i, (xi, yi) in enumerate(zip(x, y)):
                 if not np.isnan(xi):

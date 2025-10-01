@@ -210,16 +210,20 @@ class OmaApp:
         self.param_lfm3_2 = ttk.Labelframe(self.param_lfm3, text='find optimal br')
         self.param_lab3_0_0_0 = tk.Label(self.param_lfm3_0, text='method')
         self.param_lab3_0_1_0 = tk.Label(self.param_lfm3_0, text='br')
-        self.param_lab3_0_2_0 = tk.Label(self.param_lfm3_0, text='ord max')
-        self.param_lab3_0_3_0 = tk.Label(self.param_lfm3_0, text='calc_unc')
-        self.param_lab3_0_4_0 = tk.Label(self.param_lfm3_0, text='nb')
-        self.param_lab3_0_5_0 = tk.Label(self.param_lfm3_0, text='hide poles')
+        self.param_lab3_0_2_0 = tk.Label(self.param_lfm3_0, text='ord min')
+        self.param_lab3_0_3_0 = tk.Label(self.param_lfm3_0, text='ord max')
+        self.param_lab3_0_4_0 = tk.Label(self.param_lfm3_0, text='ord step')
+        self.param_lab3_0_5_0 = tk.Label(self.param_lfm3_0, text='calc_unc')
+        self.param_lab3_0_6_0 = tk.Label(self.param_lfm3_0, text='nb')
+        self.param_lab3_0_7_0 = tk.Label(self.param_lfm3_0, text='hide poles')
         self.param_cmb3_0_0_1 = ttk.Combobox(self.param_lfm3_0, state='readonly', values=['SSIdat'])
         self.param_etr3_0_1_1 = tk.Entry(self.param_lfm3_0)
         self.param_etr3_0_2_1 = tk.Entry(self.param_lfm3_0)
-        self.param_chb3_0_3_1 = tk.Checkbutton(self.param_lfm3_0, variable=self.var_to_calc_unc)
+        self.param_etr3_0_3_1 = tk.Entry(self.param_lfm3_0)
         self.param_etr3_0_4_1 = tk.Entry(self.param_lfm3_0)
-        self.param_chb3_0_5_1 = tk.Checkbutton(self.param_lfm3_0, variable=self.var_to_hide_poles)
+        self.param_chb3_0_5_1 = tk.Checkbutton(self.param_lfm3_0, variable=self.var_to_calc_unc)
+        self.param_etr3_0_6_1 = tk.Entry(self.param_lfm3_0)
+        self.param_chb3_0_7_1 = tk.Checkbutton(self.param_lfm3_0, variable=self.var_to_hide_poles)
         self.param_lab3_1_0_0 = tk.Label(self.param_lfm3_1, text='min distance')
         self.param_lab3_1_1_0 = tk.Label(self.param_lfm3_1, text='percentile')
         self.param_lab3_1_2_0 = tk.Label(self.param_lfm3_1, text='mean')
@@ -312,12 +316,16 @@ class OmaApp:
         self.param_lab3_0_3_0.grid(row=3, column=0)
         self.param_lab3_0_4_0.grid(row=4, column=0)
         self.param_lab3_0_5_0.grid(row=5, column=0)
+        self.param_lab3_0_6_0.grid(row=6, column=0)
+        self.param_lab3_0_7_0.grid(row=7, column=0)
         self.param_cmb3_0_0_1.grid(row=0, column=1)
         self.param_etr3_0_1_1.grid(row=1, column=1)
         self.param_etr3_0_2_1.grid(row=2, column=1)
-        self.param_chb3_0_3_1.grid(row=3, column=1)
+        self.param_etr3_0_3_1.grid(row=3, column=1)
         self.param_etr3_0_4_1.grid(row=4, column=1)
         self.param_chb3_0_5_1.grid(row=5, column=1)
+        self.param_etr3_0_6_1.grid(row=6, column=1)
+        self.param_chb3_0_7_1.grid(row=7, column=1)
         self.param_lab3_1_0_0.grid(row=0, column=0)
         self.param_lab3_1_1_0.grid(row=1, column=0)
         self.param_lab3_1_2_0.grid(row=2, column=0)
@@ -465,9 +473,11 @@ class OmaApp:
         self.var_to_run_ssi.set(True)
         self.param_cmb3_0_0_1.set('SSIdat')
         self.param_etr3_0_1_1.insert(0, '100')
-        self.param_etr3_0_2_1.insert(0, '60')
+        self.param_etr3_0_2_1.insert(0, '0')
+        self.param_etr3_0_3_1.insert(0, '60')
+        self.param_etr3_0_4_1.insert(0, '1')
         self.var_to_calc_unc.set(True)
-        self.param_etr3_0_4_1.insert(0, '100')
+        self.param_etr3_0_6_1.insert(0, '100')
         self.var_to_hide_poles.set(False)
         self.var_of_clustering_method.set('min_distance')
         self.param_etr3_1_1_1.insert(0, '80')
@@ -576,9 +586,11 @@ class OmaApp:
                     'run_ssi'               : self.var_to_run_ssi.get(),
                     'ssi_method'            : self.param_cmb3_0_0_1.get(),
                     'br'                    : int(self.param_etr3_0_1_1.get()),
-                    'ord_max_run'           : int(self.param_etr3_0_2_1.get()),
+                    'ord_min_run'           : int(self.param_etr3_0_2_1.get()),
+                    'ord_max_run'           : int(self.param_etr3_0_3_1.get()),
+                    'ord_step_run'           : int(self.param_etr3_0_4_1.get()),
                     'calc_unc'              : self.var_to_calc_unc.get(),
-                    'nb'                    : int(self.param_etr3_0_4_1.get()),
+                    'nb'                    : int(self.param_etr3_0_6_1.get()),
                     'hide_poles'            : self.var_to_hide_poles.get(),
                     'clustering_method'     : self.var_of_clustering_method.get(),
                     'percentile'            : float(self.param_etr3_1_1_1.get()),
@@ -687,8 +699,8 @@ class OmaApp:
         fdd = FDD(name="FDD", nxseg=p['nxseg'], method_SD=p['method_SD'], pov=p['pov'])
         efdd = EFDD(name="EFDD", nxseg=p['nxseg'], method_SD=p['method_SD'], pov=p['pov'], DF1=p['DF1'], DF2=p['DF2'], cm=p['cm'], MAClim=p['MAClim'], sppk=p['sppk'], npmax=p['npmax'],)
         fsdd = FSDD(name="FSDD", nxseg=p['nxseg'], method_SD=p['method_SD'], pov=p['pov'])
-        ssidat = SSIdat(name="SSIdat", br=p['br'], ordmax=p['ord_max_run'], calc_unc=p['calc_unc'])
-        ssicov = SSIcov(name="SSIcov", br=p['br'], ordmax=p['ord_max_run'], calc_unc=p['calc_unc'])
+        ssidat = SSIdat(name="SSIdat", br=p['br'], ordmin=p['ord_min_run'], ordmax=p['ord_max_run'], step=p['ord_step_run'], calc_unc=p['calc_unc'])
+        ssicov = SSIcov(name="SSIcov", br=p['br'], ordmin=p['ord_min_run'], ordmax=p['ord_max_run'], step=p['ord_step_run'], calc_unc=p['calc_unc'])
 
         # Add algorithms to the single setup class
         ss.add_algorithms(fdd, efdd, fsdd, ssidat, ssicov)

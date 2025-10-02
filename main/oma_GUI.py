@@ -553,7 +553,7 @@ class OmaApp:
                     'data_files'            : shlex.split(self.data_etr0_1_1.get()),
                     'usecols'               : [int(x) for x in self.data_etr0_2_1.get().split(',')],
                     'start_time'            : start_time,
-                    'save_dir'              : self.data_etr0_4_1.get(),
+                    'root_save_folder'      : self.data_etr0_4_1.get(),
                     'geo_path'              : self.geo_etr0_0_1.get(),
 
                     'freqlim'               : freqlim,
@@ -606,14 +606,41 @@ class OmaApp:
 
         return param_dict
 
+    def make_save_folder(self, params):
+        tmp_save_folder = params['root_save_folder'] + '/' + params['set_up_name']
+        copy = tmp_save_folder
+
+        i = 1
+        while True:
+            if not os.path.isdir(tmp_save_folder):
+                save_folder = tmp_save_folder
+                break
+
+            tmp_save_folder = copy + f'_({i})'
+            i += 1
+
+        return save_folder
+
     def define_set_up(self):
+        # get parameters
+        params = self.get_parameters()
+
+        # name of setup
         for i in range(1, len(self.set_up_dict) + 2):
             name = f'set_up_{i}'
             if name not in self.set_up_dict.keys():
                 break
         self.set_up_dict[name] = {}
 
-        # construct a widget to run analysis by current parameter set
+        # update params
+        params.update(set_up_name=name)
+        path = self.make_save_folder(params)
+        params.update(save_folder=path)
+
+        # save parameters
+        self.set_up_dict[name]['params'] = params
+
+        # construct a widget in Run tab to run analysis by current parameter set
         self.set_up_dict[name]['var_to_run'] = tk.BooleanVar()
         self.set_up_dict[name]['chb_to_run'] = tk.Checkbutton(
             self.run_lfm0,
@@ -623,8 +650,7 @@ class OmaApp:
         self.set_up_dict[name]['chb_to_run'].pack()
         self.set_up_dict[name]['var_to_run'].set(True)
 
-        # get parameters
-        self.set_up_dict[name]['params'] = self.get_parameters()
+        # insert setup to the table in Parameter tab
         self.param_tbl5.insert('', 'end', text=name)
 
     # ==========================================================================
@@ -649,8 +675,8 @@ class OmaApp:
 
     def _save_params(self, params):
         p = params
-        os.makedirs(p['save_dir'], exist_ok=True)
-        output_path_param = p['save_dir'] + '/' + "parameter_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".txt"
+        os.makedirs(p['save_folder'], exist_ok=True)
+        output_path_param = p['save_folder'] + '/' + "parameter_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".txt"
         with open(output_path_param, 'w') as f:
             indent = "  "
             f.write("・EFDD parameter\n")
@@ -723,8 +749,8 @@ class OmaApp:
             ssidat (pyoma2 SSIdat class): _description_
         """
         # make directory to save the results
-        efdd_save_folder = params['save_dir'] + '/EFDD'
-        ssi_save_folder  = params['save_dir'] + '/SSI (auto)'
+        efdd_save_folder = params['save_folder'] + '/EFDD'
+        ssi_save_folder  = params['save_folder'] + '/SSI (auto)'
         os.makedirs(efdd_save_folder, exist_ok=True)
         os.makedirs(ssi_save_folder , exist_ok=True)
 
@@ -1496,7 +1522,7 @@ class OmaApp:
 
     def _find_op_i(self, params):
         p = params
-        find_i_save_folder  = p['save_dir'] + '/find'
+        find_i_save_folder  = p['save_folder'] + '/find'
         os.makedirs(find_i_save_folder , exist_ok=True)
 
         # Create single set_up

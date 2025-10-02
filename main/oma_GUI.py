@@ -706,6 +706,7 @@ class OmaApp:
             f.write("・clustering parameter\n")
             f.write(f"{indent}clustering method = {p['clustering_method']}\n")
             f.write(f"{indent}percentile = {p['percentile']}\n")
+            f.write(f"{indent}minimum cluster elements = {p['min_cluster_elements']}\n")
 
     def _pre_process(self, params):
         # short cut of params

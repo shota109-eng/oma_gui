@@ -1317,7 +1317,7 @@ class OmaApp:
             )
 
             # output the dataframe
-            outnm_valid = ("ssidat_validation_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".csv")
+            outnm_valid = (f"ssidat_{med_or_mean}_validation_{os.path.splitext(os.path.basename(p['data_folder']))[0]}.csv")
             output_path_valid = mpe_folder + "/" + outnm_valid
             df_valid.to_csv(output_path_valid, index=True, header=True)
 
@@ -1497,7 +1497,7 @@ class OmaApp:
 
     def _find_op_i(self, params):
         p = params
-        find_i_save_folder  = p['save_dir'] + '/find'
+        find_i_save_folder  = p['save_dir'] + '/find_i'
         os.makedirs(find_i_save_folder , exist_ok=True)
 
         # Create single set_up
@@ -1534,7 +1534,7 @@ class OmaApp:
         contour = self.df_to_contour(df_kappa, log10_z=True)
         plt.colorbar(contour, label='Contour\nlog$_1$$_0$(κ)')
         plt.xticks(ticks=range(p['ord_min_find'], p['ord_max_find'] + 1, p['ord_step_find']))
-        plt.yticks(ticks=range(p['br_min'] , i_max        + 1, p['br_step'] ))
+        plt.yticks(ticks=range(p['br_min']      , i_max             + 1, p['br_step']      ))
         plt.xlabel('Model order n')
         plt.ylabel('Block rows i')
         plt.title('Contour Plot of κ over (n, i)')
@@ -1813,6 +1813,115 @@ class OmaApp:
 
         return l
 
+    # ==========================================================================
+    # functions to find optimal numbers of model order
+    # ==========================================================================
+    def find_op_n(self):
+        for key in self.set_up_dict.keys():
+            if self.set_up_dict[key]['var_to_run'].get():
+                params = self.set_up_dict[key]['params']
+
+                for k in params.keys():
+                    print(f"{k}: {params[k]}")
+
+                self._find_op_n(params)
+
+                self.set_up_dict[key]['var_to_run'].set(False)
+
+        messagebox.showinfo(title='find', message='Done!')
+
+    def _find_op_n(self, params):
+        # short cut of params
+        p = params
+
+        # save folder
+        find_n_save_folder  = p['save_dir'] + '/find_n'
+        os.makedirs(find_n_save_folder , exist_ok=True)
+
+        # Create single set_up
+        ss = self.create_single_setup(p['start_time'], p['data_files'], p['data_folder'], p['usecols'], p['fs'])
+
+        # Detrend, filter or decimate
+        ss.detrend_data()
+        if p['q']:
+            ss.decimate_data(q=p['q'])
+        if p['order']:
+            ss.filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
+
+        # compute
+        ord, E_k, S = self.entropy_from_ss(params, ss)
+
+        # save
+        self.save_find_n(params, ord, E_k, S, find_n_save_folder)
+
+    def entropy_from_ss(self, params, ss):
+        p = params
+
+        Y = ss.data.T.values
+
+        m = p['ssi_method']
+        if m == 'SSIdat':
+            method = 'dat'
+        elif m == 'SSIcov':
+            method = 'cov'
+
+        H, _ = ssi.build_hank(Y=Y, Yref=Y, br=p['br_find_n'], method=method, calc_unc=False, nb=50)
+        _, S, _ = np.linalg.svd(H, full_matrices=False)
+
+        ord, E_k = self.entropy(S, ord_min=p['ord_min_find_n'], ord_max=p['ord_max_find_n'], ord_step=p['ord_step_find_n'])
+
+        return ord, E_k, S
+
+    def entropy(self, S, ord_min=None, ord_max=None, ord_step=1):
+        ord_list = list(range(ord_min, ord_max + 1, ord_step))
+        for k in ord_list:
+            S_k = S[:k]
+            S_sum_k = np.sum(S_k)
+            p_k = S_k / S_sum_k
+            delta_E_k = -p_k * np.log(p_k)
+        E_k_list = delta_E_k.tolist()
+
+        return ord_list, E_k_list
+
+    def save_find_n(self, params, ord, E_k, S, find_n_save_folder):
+        p = params
+
+        # CSV
+        outnm_find_n = ("find_n_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".csv")
+        df_n = pd.DataFrame({"ord_k": ord, "SV": S[:len(ord)], "Ei": E_k})
+        df_i =pd.DataFrame({"i": p['br_find_n']}, index=[0])
+        df_find_n = pd.concat([df_n, df_i], axis=1)
+        output_path_find_n = os.path.join(find_n_save_folder, outnm_find_n)
+        df_find_n.to_csv(output_path_find_n, index=False)
+
+        # figure
+        self.plot_SV(ord_list=ord, S=S)
+        output_ssidat_fig = os.path.join(find_n_save_folder, "SV_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".png")
+        plt.savefig(output_ssidat_fig, dpi=300, bbox_inches='tight')
+        self.plot_E(ord_list=ord, E_k_list=E_k)
+        output_ssidat_fig = os.path.join(find_n_save_folder, "E_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".png")
+        plt.savefig(output_ssidat_fig, dpi=300, bbox_inches='tight')
+
+        plt.close()
+
+    def plot_SV(self, ord_list, S):
+        S_nom = S/np.max(S)
+        plt.figure(figsize=(4, 3))
+        plt.plot(ord_list, S_nom[:len(ord_list)], 'bo-')
+        plt.xlabel("Model Order (-)")
+        plt.ylabel("Singular Value")
+        plt.title("Singular Values vs Model Order")
+        plt.grid(True)
+        plt.tight_layout()
+
+    def plot_E(self, ord_list, E_k_list):
+        plt.figure(figsize=(4, 3))
+        plt.plot(ord_list, E_k_list, 'rD-')
+        plt.xlabel("Model Order (-)")
+        plt.ylabel("ΔE")
+        plt.title("entropy vs Model Order")
+        plt.grid(True)
+        plt.tight_layout()
 
 # OmaApp を実行
 if __name__ == "__main__":

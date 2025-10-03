@@ -204,10 +204,13 @@ class OmaApp:
         self.param_etr2_0_10_1 = tk.Entry(self.param_lfm2_0)
 
         self.param_lfm3 = ttk.Labelframe(self.tab_param, text='SSI')
-        self.param_chb3_2 = tk.Checkbutton(self.param_lfm3, variable=self.var_to_run_ssi, text='run ssi')
-        self.param_lfm3_0 = ttk.Labelframe(self.param_lfm3, text='basic')
-        self.param_lfm3_1 = ttk.Labelframe(self.param_lfm3, text='hierarchical clustering')
-        self.param_lfm3_2 = ttk.Labelframe(self.param_lfm3, text='find optimal br')
+        self.param_lfm3_left  = tk.Frame(self.param_lfm3)
+        self.param_lfm3_right = tk.Frame(self.param_lfm3)
+        self.param_chb3_2 = tk.Checkbutton(self.param_lfm3_left , variable=self.var_to_run_ssi, text='run ssi')
+        self.param_lfm3_0 = ttk.Labelframe(self.param_lfm3_left , text='basic')
+        self.param_lfm3_1 = ttk.Labelframe(self.param_lfm3_left , text='hierarchical clustering')
+        self.param_lfm3_2 = ttk.Labelframe(self.param_lfm3_right, text='find optimal block rows (br)')
+        self.param_lfm3_3 = ttk.Labelframe(self.param_lfm3_right, text='find optimal model order (ord)')
         self.param_lab3_0_0_0 = tk.Label(self.param_lfm3_0, text='method')
         self.param_lab3_0_1_0 = tk.Label(self.param_lfm3_0, text='br')
         self.param_lab3_0_2_0 = tk.Label(self.param_lfm3_0, text='ord min')
@@ -246,6 +249,14 @@ class OmaApp:
         self.param_etr3_2_4_1 = tk.Entry(self.param_lfm3_2)
         self.param_etr3_2_5_1 = tk.Entry(self.param_lfm3_2)
         self.param_etr3_2_6_1 = tk.Entry(self.param_lfm3_2)
+        self.param_lab3_3_0_0 = tk.Label(self.param_lfm3_3, text='br')
+        self.param_lab3_3_1_0 = tk.Label(self.param_lfm3_3, text='ord min')
+        self.param_lab3_3_2_0 = tk.Label(self.param_lfm3_3, text='ord max')
+        self.param_lab3_3_3_0 = tk.Label(self.param_lfm3_3, text='ord step')
+        self.param_lab3_3_0_1 = tk.Entry(self.param_lfm3_3)
+        self.param_lab3_3_1_1 = tk.Entry(self.param_lfm3_3)
+        self.param_lab3_3_2_1 = tk.Entry(self.param_lfm3_3)
+        self.param_lab3_3_3_1 = tk.Entry(self.param_lfm3_3)
 
         self.param_btn4 = tk.Button(self.tab_param, text='Save', command=self.define_set_up, font=('Helvetica', '35'))
         self.param_tbl5 = ttk.Treeview(self.tab_param, show="tree")
@@ -348,10 +359,21 @@ class OmaApp:
         self.param_etr3_2_4_1.grid(row=4, column=1)
         self.param_etr3_2_5_1.grid(row=5, column=1)
         # self.param_etr3_2_6_1.grid(row=6, column=1)
+        self.param_lab3_3_0_0.grid(row=0, column=0)
+        self.param_lab3_3_1_0.grid(row=1, column=0)
+        self.param_lab3_3_2_0.grid(row=2, column=0)
+        self.param_lab3_3_3_0.grid(row=3, column=0)
+        self.param_lab3_3_0_1.grid(row=0, column=1)
+        self.param_lab3_3_1_1.grid(row=1, column=1)
+        self.param_lab3_3_2_1.grid(row=2, column=1)
+        self.param_lab3_3_3_1.grid(row=3, column=1)
         self.param_chb3_2.pack()
         self.param_lfm3_0.pack()
         self.param_lfm3_1.pack()
         self.param_lfm3_2.pack()
+        self.param_lfm3_3.pack()
+        self.param_lfm3_left.grid(row=0, column=0)
+        self.param_lfm3_right.grid(row=0, column=1)
         self.param_lfm3.grid(row=0, column=2, rowspan=2)
 
         self.param_btn4.grid(row=2, column=0, columnspan=3)
@@ -365,12 +387,14 @@ class OmaApp:
         # create widgets
         self.run_lfm0 = ttk.Labelframe(self.tab_run, text='select set-up to run')
         self.run_frm1 = tk.Frame(self.tab_run)
-        self.run_btn0 = tk.Button(self.run_frm1, text='Find', command=self.find_op_i, font=('Helvetica', '35'))
-        self.run_btn1 = tk.Button(self.run_frm1, text='Run', command=self.run_button, font=('Helvetica', '35'))
+        self.run_btn0 = tk.Button(self.run_frm1, width=6, text='Find_i', command=self.find_op_i, font=('Helvetica', '35'))
+        self.run_btn1 = tk.Button(self.run_frm1, width=6, text='Find_n', command=self.find_op_n, font=('Helvetica', '35'))
+        self.run_btn2 = tk.Button(self.run_frm1, width=6, text='Run', command=self.run_button, font=('Helvetica', '35'))
 
         # layout widgets
-        self.run_btn0.pack(anchor='center')
-        self.run_btn1.pack(anchor='center')
+        self.run_btn0.grid(row=0, column=0)
+        self.run_btn1.grid(row=0, column=1)
+        self.run_btn2.grid(row=1, column=0, columnspan=2)
         self.run_lfm0.pack()
         self.run_frm1.pack()
 
@@ -489,6 +513,10 @@ class OmaApp:
         self.param_etr3_2_4_1.insert(0, '100')
         self.param_etr3_2_5_1.insert(0, '10')
         self.param_etr3_2_6_1.insert(0, '0.01')
+        self.param_lab3_3_0_1.insert(0, '0')
+        self.param_lab3_3_1_1.insert(0, '1')
+        self.param_lab3_3_2_1.insert(0, '200')
+        self.param_lab3_3_3_1.insert(0, '1')
 
     def brows_importing_data_folder(self):
         dir = filedialog.askdirectory()
@@ -598,9 +626,13 @@ class OmaApp:
                     'br_min'                : int(self.param_etr3_2_0_1.get()),
                     'br_max'                : br_max,
                     'br_step'               : int(self.param_etr3_2_2_1.get()),
-                    'ord_min_find'          : int(self.param_etr3_2_3_1.get()),
-                    'ord_max_find'          : int(self.param_etr3_2_4_1.get()),
-                    'ord_step_find'         : int(self.param_etr3_2_5_1.get()),
+                    'ord_min_find_i'          : int(self.param_etr3_2_3_1.get()),
+                    'ord_max_find_i'          : int(self.param_etr3_2_4_1.get()),
+                    'ord_step_find_i'         : int(self.param_etr3_2_5_1.get()),
+                    'br_find_n'             : int(self.param_lab3_3_0_1.get()),
+                    'ord_min_find_n'        : int(self.param_lab3_3_1_1.get()),
+                    'ord_max_find_n'        : int(self.param_lab3_3_2_1.get()),
+                    'ord_step_find_n'       : int(self.param_lab3_3_3_1.get()),
                     # 'threshold'             : float(self.param_etr3_2_6_1.get())
                     }
 
@@ -776,7 +808,7 @@ class OmaApp:
                 combined_data = comb_data.iloc[:nan_start_index]
             else:
                 combined_data = comb_data
-            ss = SingleSetup(combined_data, fs=fs)
+            ss = SingleSetup(combined_data.values, fs=fs)
         else:
             df_data = []
             for name in file_names:
@@ -790,7 +822,7 @@ class OmaApp:
                 combined_data = comb_data.iloc[:nan_start_index]
             else:
                 combined_data = comb_data
-            ss = SingleSetup(combined_data, fs=fs)
+            ss = SingleSetup(combined_data.values, fs=fs)
 
         return ss
 
@@ -1317,7 +1349,7 @@ class OmaApp:
             )
 
             # output the dataframe
-            outnm_valid = ("ssidat_validation_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".csv")
+            outnm_valid = (f"ssidat_{med_or_mean}_validation_{os.path.splitext(os.path.basename(p['data_folder']))[0]}.csv")
             output_path_valid = mpe_folder + "/" + outnm_valid
             df_valid.to_csv(output_path_valid, index=True, header=True)
 
@@ -1497,7 +1529,7 @@ class OmaApp:
 
     def _find_op_i(self, params):
         p = params
-        find_i_save_folder  = p['save_dir'] + '/find'
+        find_i_save_folder  = p['save_dir'] + '/find_i'
         os.makedirs(find_i_save_folder , exist_ok=True)
 
         # Create single set_up
@@ -1514,7 +1546,7 @@ class OmaApp:
         # find optimal i
         #====================================================================================================================
         op_i_list, i_max, df_kappa, df_delta_kappa, _ \
-            = self.find_all_optimal_i(Y=ss.data.T, ord_min=p['ord_min_find'], ord_max=p['ord_max_find'], ord_step=p['ord_step_find'], \
+            = self.find_all_optimal_i(Y=ss.data.T, ord_min=p['ord_min_find_i'], ord_max=p['ord_max_find_i'], ord_step=p['ord_step_find_i'], \
                                 method="dat", i_min=p['br_min'], i_max_lim=p['br_max'], i_step=p['br_step'], nb=p['nb'])
 
         #====================================================================================================================
@@ -1533,8 +1565,8 @@ class OmaApp:
         # output contour of kappa
         contour = self.df_to_contour(df_kappa, log10_z=True)
         plt.colorbar(contour, label='Contour\nlog$_1$$_0$(κ)')
-        plt.xticks(ticks=range(p['ord_min_find'], p['ord_max_find'] + 1, p['ord_step_find']))
-        plt.yticks(ticks=range(p['br_min'] , i_max        + 1, p['br_step'] ))
+        plt.xticks(ticks=range(p['ord_min_find_i'], p['ord_max_find_i'] + 1, p['ord_step_find_i']))
+        plt.yticks(ticks=range(p['br_min']        , i_max               + 1, p['br_step']        ))
         plt.xlabel('Model order n')
         plt.ylabel('Block rows i')
         plt.title('Contour Plot of κ over (n, i)')
@@ -1559,9 +1591,9 @@ class OmaApp:
             ["i_min", p['br_min']],
             ["i_max", i_max],
             ["i_step", p['br_step']],
-            ["ord_min", p['ord_min_find']],
-            ["ord_max", p['ord_max_find']],
-            ["ord_step", p['ord_step_find']]
+            ["ord_min", p['ord_min_find_i']],
+            ["ord_max", p['ord_max_find_i']],
+            ["ord_step", p['ord_step_find_i']]
         ]
         df_params = pd.DataFrame(param_rows, columns=[' ', ' '])
 
@@ -1813,6 +1845,115 @@ class OmaApp:
 
         return l
 
+    # ==========================================================================
+    # functions to find optimal numbers of model order
+    # ==========================================================================
+    def find_op_n(self):
+        for key in self.set_up_dict.keys():
+            if self.set_up_dict[key]['var_to_run'].get():
+                params = self.set_up_dict[key]['params']
+
+                for k in params.keys():
+                    print(f"{k}: {params[k]}")
+
+                self._find_op_n(params)
+
+                self.set_up_dict[key]['var_to_run'].set(False)
+
+        messagebox.showinfo(title='find', message='Done!')
+
+    def _find_op_n(self, params):
+        # short cut of params
+        p = params
+
+        # save folder
+        find_n_save_folder  = p['save_dir'] + '/find_n'
+        os.makedirs(find_n_save_folder , exist_ok=True)
+
+        # Create single set_up
+        ss = self.create_single_setup(p['start_time'], p['data_files'], p['data_folder'], p['usecols'], p['fs'])
+
+        # Detrend, filter or decimate
+        ss.detrend_data()
+        if p['q']:
+            ss.decimate_data(q=p['q'])
+        if p['order']:
+            ss.filter_data(Wn=p['Wn'], order=p['order'], btype=p['btype'])
+
+        # compute
+        ord, E_k, S = self.entropy_from_ss(params, ss)
+
+        # save
+        self.save_find_n(params, ord, E_k, S, find_n_save_folder)
+
+    def entropy_from_ss(self, params, ss):
+        p = params
+
+        Y = ss.data.T
+
+        m = p['ssi_method']
+        if m == 'SSIdat':
+            method = 'dat'
+        elif m == 'SSIcov':
+            method = 'cov'
+
+        H, _ = ssi.build_hank(Y=Y, Yref=Y, br=p['br_find_n'], method=method, calc_unc=False, nb=50)
+        _, S, _ = np.linalg.svd(H, full_matrices=False)
+
+        ord, E_k = self.entropy(S, ord_min=p['ord_min_find_n'], ord_max=p['ord_max_find_n'], ord_step=p['ord_step_find_n'])
+
+        return ord, E_k, S
+
+    def entropy(self, S, ord_min=None, ord_max=None, ord_step=1):
+        ord_list = list(range(ord_min, ord_max + 1, ord_step))
+        for k in ord_list:
+            S_k = S[:k]
+            S_sum_k = np.sum(S_k)
+            p_k = S_k / S_sum_k
+            delta_E_k = -p_k * np.log(p_k)
+        E_k_list = delta_E_k.tolist()
+
+        return ord_list, E_k_list
+
+    def save_find_n(self, params, ord, E_k, S, find_n_save_folder):
+        p = params
+
+        # CSV
+        outnm_find_n = ("find_n_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".csv")
+        df_n = pd.DataFrame({"ord_k": ord, "SV": S[:len(ord)], "Ei": E_k})
+        df_i =pd.DataFrame({"i": p['br_find_n']}, index=[0])
+        df_find_n = pd.concat([df_n, df_i], axis=1)
+        output_path_find_n = os.path.join(find_n_save_folder, outnm_find_n)
+        df_find_n.to_csv(output_path_find_n, index=False)
+
+        # figure
+        self.plot_SV(ord_list=ord, S=S)
+        output_ssidat_fig = os.path.join(find_n_save_folder, "SV_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".png")
+        plt.savefig(output_ssidat_fig, dpi=300, bbox_inches='tight')
+        self.plot_E(ord_list=ord, E_k_list=E_k)
+        output_ssidat_fig = os.path.join(find_n_save_folder, "E_"+os.path.splitext(os.path.basename(p['data_folder']))[0]+".png")
+        plt.savefig(output_ssidat_fig, dpi=300, bbox_inches='tight')
+
+        plt.close()
+
+    def plot_SV(self, ord_list, S):
+        S_nom = S/np.max(S)
+        plt.figure(figsize=(4, 3))
+        plt.plot(ord_list, S_nom[:len(ord_list)], 'bo-')
+        plt.xlabel("Model Order (-)")
+        plt.ylabel("Singular Value")
+        plt.title("Singular Values vs Model Order")
+        plt.grid(True)
+        plt.tight_layout()
+
+    def plot_E(self, ord_list, E_k_list):
+        plt.figure(figsize=(4, 3))
+        plt.plot(ord_list, E_k_list, 'rD-')
+        plt.xlabel("Model Order (-)")
+        plt.ylabel("ΔE")
+        plt.title("entropy vs Model Order")
+        plt.grid(True)
+        plt.tight_layout()
 
 # OmaApp を実行
 if __name__ == "__main__":

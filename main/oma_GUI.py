@@ -1565,13 +1565,8 @@ class OmaApp:
         # output contour of kappa
         contour = self.df_to_contour(df_kappa, log10_z=True)
         plt.colorbar(contour, label='Contour\nlog$_1$$_0$(κ)')
-<<<<<<< HEAD
         plt.xticks(ticks=range(p['ord_min_find_i'], p['ord_max_find_i'] + 1, p['ord_step_find_i']))
         plt.yticks(ticks=range(p['br_min']        , i_max               + 1, p['br_step']        ))
-=======
-        plt.xticks(ticks=range(p['ord_min_find'], p['ord_max_find'] + 1, p['ord_step_find']))
-        plt.yticks(ticks=range(p['br_min']      , i_max             + 1, p['br_step']      ))
->>>>>>> f424efd85e58836c2ec57b5f69eb40c638af6e5a
         plt.xlabel('Model order n')
         plt.ylabel('Block rows i')
         plt.title('Contour Plot of κ over (n, i)')
@@ -1894,11 +1889,7 @@ class OmaApp:
     def entropy_from_ss(self, params, ss):
         p = params
 
-<<<<<<< HEAD
         Y = ss.data.T
-=======
-        Y = ss.data.T.values
->>>>>>> f424efd85e58836c2ec57b5f69eb40c638af6e5a
 
         m = p['ssi_method']
         if m == 'SSIdat':

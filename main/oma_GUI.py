@@ -18,6 +18,8 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from PIL import Image, ImageTk, ImageOps
 from scipy.signal import find_peaks
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import squareform
@@ -417,10 +419,57 @@ class OmaApp:
         # Result Frame
         #=========================================================
         # create widgets
-        self.res_note = ttk.Notebook(self.tab_result)
+        self.res_cmb0 = ttk.Combobox(
+            self.tab_result,
+            state='readonly',
+            values = [],
+        )
+        self.res_cmb0.bind("<<ComboboxSelected>>", self.result_selected)
+        self.res_note1 = ttk.Notebook(self.tab_result)
+
+        self.res_tab1_0 = tk.Frame(self.res_note1)
+        columns = ['model_order', 'optimal_i']
+        self.res_tbl1_0_0 = ttk.Treeview(self.res_tab1_0, columns=columns)
+        self.res_tbl1_0_0['show'] = 'headings'
+        self.res_tbl1_0_0.heading('model_order', text='model order')
+        self.res_tbl1_0_0.heading('optimal_i'  , text='optimal i'  )
+        self.res_cvs1_0_1 = tk.Canvas(self.res_tab1_0, bg='white')
+
+        self.res_tab1_1 = tk.Frame(self.res_note1)
+        self.res_cvs1_1_0 = tk.Canvas(self.res_tab1_1, bg='white')
+        self.res_cvs1_1_1 = tk.Canvas(self.res_tab1_1, bg='white')
+        self.res_flm1_1_2 = tk.Frame(self.res_tab1_1)
+        self.res_fig1_1_2_0_0, self.res_ax1_1_2_0_0_0 = plt.subplots(figsize=(6, 4))
+        self.res_cvs1_1_2_0 = FigureCanvasTkAgg(self.res_fig1_1_2_0_0, master=self.res_flm1_1_2)
+        self.res_cvs1_1_2_0.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.res_tlb1_1_2_0_0 = NavigationToolbar2Tk(self.res_cvs1_1_2_0, self.res_flm1_1_2)
+        self.res_tlb1_1_2_0_0.update()
+        self.res_cvs1_1_2_0.get_tk_widget().pack(side=tk.TOP)
 
         # layout widgets
-        self.res_note.pack(expand=True)
+        self.res_tbl1_0_0.grid(row=0, column=0, sticky='ns')
+        self.res_cvs1_0_1.grid(row=0, column=1, sticky='nsew')
+        self.res_note1.add(self.res_tab1_0, text='find i')
+        self.res_tab1_0.columnconfigure(1, weight=1)
+        self.res_tab1_0.rowconfigure(0, weight=1)
+        self.res_cvs1_1_0.grid(row=0, column=0)
+        self.res_cvs1_1_1.grid(row=1, column=0)
+        self.res_flm1_1_2.grid(row=0, column=1, rowspan=2, sticky='nsew')
+        self.res_note1.add(self.res_tab1_1, text='find n')
+        self.res_tab1_1.columnconfigure(1, weight=1)
+        self.res_tab1_1.rowconfigure(0, weight=1)
+        self.res_tab1_1.rowconfigure(1, weight=1)
+
+        self.res_cmb0.pack()
+        self.res_note1.pack(fill=tk.BOTH, expand=True)
+
+        self.res_img1_0_1_0 = tk.PhotoImage()
+        self.res_img1_1_0_0 = tk.PhotoImage()
+        self.res_img1_1_1_0 = tk.PhotoImage()
+
+        self.res_iid1_0_1_0_0 = self.res_cvs1_0_1.create_image(0, 0, anchor="nw", image=self.res_img1_0_1_0)
+        self.res_iid1_1_0_0_0 = self.res_cvs1_1_0.create_image(0, 0, anchor="nw", image=self.res_img1_1_0_0)
+        self.res_iid1_1_1_0_0 = self.res_cvs1_1_1.create_image(0, 0, anchor="nw", image=self.res_img1_1_1_0)
 
         #=========================================================
         # MPE Frame
@@ -428,39 +477,8 @@ class OmaApp:
         # create widgets
         self.mpe_lfm0 = ttk.Labelframe(self.tab_mpe, text='Select frequencies for mpe')
 
-
-
         # layout widgets
         self.mpe_lfm0.pack()
-
-
-
-        #=========================================================
-        # SSI Frame
-        #=========================================================
-        self.frm3 = tk.Frame(self.tab_SSI)
-        self.frm3.pack()
-        # title label
-        self.titleLabel = tk.Label(self.tab_SSI, text="SSI", font=('Helvetica', '35'))
-        self.titleLabel.pack(anchor='center', expand=True)
-
-        #=========================================================
-        # SSI_result Frame
-        #=========================================================
-        self.frm5 = tk.Frame(self.tab_SSIres)
-        self.frm5.pack()
-        # title label
-        self.titleLabel = tk.Label(self.tab_SSIres, text="SSI_result", font=('Helvetica', '35'))
-        self.titleLabel.pack(anchor='center', expand=True)
-
-        #=========================================================
-        # SSI_geometry Frame
-        #=========================================================
-        self.frm6 = tk.Frame(self.tab_SSIgeo)
-        self.frm6.pack()
-        # title label
-        self.titleLabel = tk.Label(self.tab_SSIgeo, text="SSI_geometry", font=('Helvetica', '35'))
-        self.titleLabel.pack(anchor='center', expand=True)
 
         # Locate tab
         note.pack(expand=True, fill='both') #, padx=10, pady=10)
@@ -654,6 +672,9 @@ class OmaApp:
             )
         self.set_up_dict[name]['chb_to_run'].pack()
         self.set_up_dict[name]['var_to_run'].set(True)
+
+        # add the set-up name to the combobox in result tab
+        self.res_cmb0['values'] = list(self.res_cmb0['values']) + [name]
 
         # get parameters
         self.set_up_dict[name]['params'] = self.get_parameters()
@@ -1954,6 +1975,112 @@ class OmaApp:
         plt.title("entropy vs Model Order")
         plt.grid(True)
         plt.tight_layout()
+
+    def result_selected(self, event):
+        set_up_name = self.res_cmb0.get()
+        params = self.set_up_dict[set_up_name]['params']
+
+        # update
+        self.update_res_find_i(params)
+        self.update_res_find_n(params)
+
+    def update_res_find_i(self, params):
+        save_dir = params['save_dir']
+        data_folder = params['data_folder']
+
+        path0 = os.path.join(save_dir, "find_i", "find_i_"+os.path.splitext(os.path.basename(data_folder))[0]+".csv")
+        path1 = os.path.join(save_dir, "find_i", "kappa_"+os.path.splitext(os.path.basename(data_folder))[0]+".png")
+
+        # update table
+        tree = self.res_tbl1_0_0
+        tree.delete(*tree.get_children())
+        if os.path.isfile(path0):
+            op_i_list = pd.read_csv(path0, usecols=[0, 1]).values.tolist()
+            for i, row in enumerate(op_i_list):
+                tree.insert(parent='', index='end', iid=i ,values=row)
+
+        # update image
+        self.res_img1_0_1_0 = self.update_canvas(
+            path  =path1,
+            canvas=self.res_cvs1_0_1,
+            img_id=self.res_iid1_0_1_0_0,
+        )
+
+    def update_res_find_n(self, params):
+        save_dir = params['save_dir']
+        data_folder = params['data_folder']
+
+        path0 = os.path.join(save_dir, "find_n", "SV_"+os.path.splitext(os.path.basename(data_folder))[0]+".png")
+        path1 = os.path.join(save_dir, "find_n", "E_"+os.path.splitext(os.path.basename(data_folder))[0]+".png")
+        path2 = os.path.join(save_dir, "find_n", "find_n_"+os.path.splitext(os.path.basename(data_folder))[0]+".csv")
+
+        # update image
+        self.res_img1_1_0_0 = self.update_canvas(
+            path  =path0,
+            canvas=self.res_cvs1_1_0,
+            img_id=self.res_iid1_1_0_0_0,
+        )
+        self.res_img1_1_1_0 = self.update_canvas(
+            path  =path1,
+            canvas=self.res_cvs1_1_1,
+            img_id=self.res_iid1_1_1_0_0,
+        )
+
+        # update plot
+        self.update_delta_E_plot(path2)
+
+    def update_canvas(self, path, canvas, img_id):
+        """update canvas with a resized image
+
+        Args:
+            path (string): _description_
+            canvas (tk.Canvas class object): _description_
+            img_id (image id made by tk.Canvas.create_image()): _description_
+        """
+        if os.path.isfile(path):
+            # load image
+            pil_image = Image.open(path)
+
+            canvas_width  = canvas.winfo_width()
+            canvas_height = canvas.winfo_height()
+
+            # resize image
+            pil_image = ImageOps.pad(
+                pil_image,
+                (canvas_width, canvas_height),
+            )
+
+            # build tk.PhotoImage
+            new_img = ImageTk.PhotoImage(image=pil_image)
+
+        else:
+            new_img = tk.PhotoImage()  # an empty tk.PhotoImage
+
+        # update canvas
+        canvas.itemconfig(img_id, image=new_img)
+
+        return new_img
+
+    def update_delta_E_plot(self, path):
+        self.res_ax1_1_2_0_0_0.clear()
+
+        if not os.path.isfile(path):
+            return
+
+        df = pd.read_csv(path, usecols=[0, 2])
+
+        ord = df.iloc[1:, 0].values
+
+        E = df.iloc[:, 1].values
+        delta_E = E[1:] - E[:-1]
+        delta_E_abs = np.abs(delta_E)
+
+        ax = self.res_ax1_1_2_0_0_0
+        ax.plot(ord, delta_E_abs, 'o', color='g', markersize=4)
+        ax.set(xlabel='Model order (-)', ylabel='|ΔE$_i$|', ylim=(0, 1E-3))
+        ax.grid(True)
+
+        self.res_cvs1_1_2_0.draw()
 
 # OmaApp を実行
 if __name__ == "__main__":

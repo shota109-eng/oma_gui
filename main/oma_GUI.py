@@ -2077,7 +2077,7 @@ class OmaApp:
 
         ax = self.res_ax1_1_2_0_0_0
         ax.plot(ord, delta_E_abs, 'o', color='g', markersize=4)
-        ax.set(xlabel='Model order (-)', ylabel='|ΔE$_i$|', ylim=(0, 1E-3))
+        ax.set(xlabel='Model order (-)', ylabel='δ(ΔE$_i$)', ylim=(0, 1E-3))
         ax.grid(True)
 
         self.res_cvs1_1_2_0.draw()
